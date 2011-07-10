@@ -1,0 +1,253 @@
+    <script src="/javascripts/maps" type="text/javascript"></script>
+    <script src="/javascripts/main.js" type="text/javascript">
+    </script><style type="text/css">@media print{.gmnoprint{display:none}}@media screen{.gmnoscreen{display:none}}</style>
+    <script src="/javascripts/epoly.js" type="text/javascript"></script>
+  <script src="/javascripts/vp" charset="UTF-8" type="text/javascript"></script>
+  <script src="/javascripts/mod_dragmod_ctrapimod_apidir.js" charset="UTF-8" type="text/javascript"></script></head><body
+ onunload="GUnload()">
+    
+
+<script>
+function changeCity(cit)
+{
+removeAllOptions(document.myform.startapt);
+removeAllOptions(document.myform.endapt);
+
+	
+	if(document.myform.citySelect.value == 'atlanta')
+	{
+		addOption(document.myform.startapt,"1345 Piedmont Ave NE , Atlanta , GA", "Atlanta Botanical Garden");
+		addOption(document.myform.startapt,"ATL , Atlanta , GA", "Atlanta International Airport");
+		addOption(document.myform.startapt,"190 Marietta St NW , Atlanta , GA", "CNN Studio");
+		addOption(document.myform.startapt,"755 Hank Aaron Dr SW , Atlanta , GA", "Turner Field");		
+		
+		addOption(document.myform.endapt,"1345 Piedmont Ave NE , Atlanta , GA", "Atlanta Botanical Garden");
+		addOption(document.myform.endapt,"ATL , Atlanta , GA", "Atlanta International Airport");
+		addOption(document.myform.endapt,"190 Marietta St NW , Atlanta , GA", "CNN Studio");
+		addOption(document.myform.endapt,"755 Hank Aaron Dr SW , Atlanta , GA", "Turner Field");
+
+	}	
+	
+ else if(document.myform.citySelect.value == 'austin')
+	{
+		addOption(document.myform.startapt,"Austin Convention Center", "Austin Convention Center");
+		addOption(document.myform.startapt,"AUS", "Austin-Bergstrom Airport");
+		addOption(document.myform.startapt,"2100 Barton Springs Rd Austin TX", "Zilker Park");
+
+		addOption(document.myform.endapt,"Austin Convention Center", "Austin Convention Center");
+		addOption(document.myform.endapt,"AUS", "Austin-Bergstrom Airport");
+		addOption(document.myform.endapt,"2100 Barton Springs Rd Austin TX", "Zilker Park");
+
+	}
+
+}
+
+function createCity()
+{
+
+addOption(document.myform.citySelect, "atlanta", "Atlanta", "");
+//~ addOption(document.myform.citySelect, "austin", "Austin", "");
+
+}
+
+function addOption(selectbox, value, text )
+{
+	var optn = document.createElement("OPTION");
+	optn.text = text;
+	optn.value = value;
+
+	selectbox.options.add(optn);
+}
+
+function removeAllOptions(selectbox)
+{
+	var i;
+	for(i=selectbox.options.length-1;i>=0;i--)
+	{
+		//selectbox.options.remove(i);
+		selectbox.remove(i);
+	}
+}
+
+//~ function findMapsPoint()
+//~ {
+	//~ var frompoint =document.getElementById("frompoint").value
+	//~ var endpoint =document.getElementById("endpoint").value
+//~ }
+
+</script>
+
+
+
+
+
+<body onload="createCity()" onunload="GUnload()">
+
+
+<form name="myform" onsubmit="start();return false" action="#" value="Go">
+<select name="citySelect" class="" id ="citySelect"  onchange="changeCity()">
+<option selected value="" >- Select City -</option>
+</select>
+
+
+From:
+<select name="startapt" class="" id ="startpoint">
+<option value='' >Please select city</option>
+</select>
+
+To:
+<select name="endapt" class="" id ="endpoint">
+<option value='' >Please select city</option>
+</select>
+
+<input type="submit" onclick ="" name="Get Fare" value="Get Fare">
+<div id="step">&nbsp;</div>
+<div id="distance">Miles: 0.00</div>
+
+<div id="fare" style="display:none">
+<input type="textbox" name ="faretext" id= "faretext" value="">
+</div>
+
+</form>
+
+<div id="map" style="width: 700px; height: 500px"></div>
+<div id="controls">
+
+
+
+
+
+
+<script type="text/javascript">
+    //<![CDATA[
+    if (GBrowserIsCompatible()) {
+ 
+      var map = new GMap2(document.getElementById("map"));
+      map.addControl(new GMapTypeControl());
+      map.setCenter(new GLatLng(0,0),2);
+      var dirn = new GDirections();
+      var step = 10; // metres
+      var tick = 0.25; // milliseconds
+      var poly;
+      var poly2;
+      var lastVertex = 0;
+      var eol;
+      var car = new GIcon();
+          car.image="/images/auto.png"
+          car.iconSize=new GSize(32,18);
+          car.iconAnchor=new GPoint(16,9);
+      var marker;
+      var k=0;
+      var stepnum=0;
+      var speed = "";   
+
+      function updatePoly(d) {
+        // Spawn a new polyline every 20 vertices, because updating a 100-vertex poly is too slow
+        if (poly2.getVertexCount() > 20) {
+          poly2=new GPolyline([poly.getVertex(lastVertex-1)]);
+          map.addOverlay(poly2)
+        }
+
+        if (poly.GetIndexAtDistance(d) < lastVertex+2) {
+           if (poly2.getVertexCount()>1) {
+             poly2.deleteVertex(poly2.getVertexCount()-1)
+           }
+           poly2.insertVertex(poly2.getVertexCount(),poly.GetPointAtDistance(d));
+        } else {
+          poly2.insertVertex(poly2.getVertexCount(),poly.getVertex(lastVertex++));
+        }
+      }
+
+      function animate(d) {
+        if (d>eol) {
+          document.getElementById("step").innerHTML = "<b>Trip completed<\/b>";
+          document.getElementById("distance").innerHTML =  "Miles: "+(d/1609.344).toFixed(2);
+					if (document.getElementById("citySelect").value =="atlanta")
+					{
+						var	InitialCharge = 2.50
+						var	Ratepermile 	= 2.00
+						var Ratepermintraffic = 0.35
+						var dismiles = (d/1609.344).toFixed(2)
+            rateestimation = 		InitialCharge + (dismiles * Ratepermile)				
+			
+					}			
+					else if (document.getElementById("citySelect").value =="austin")
+					{
+						var	InitialCharge = 3.75
+						var	Ratepermile 	= 2.00
+						var Ratepermintraffic = 0.42
+						var dismiles = (d/1609.344).toFixed(2)
+            rateestimation = 		InitialCharge + (dismiles * Ratepermile)				
+			
+					}
+					
+document.getElementById("fare").style.display="inline"
+document.getElementById("faretext").value="$" +rateestimation
+          return;
+        }
+        var p = poly.GetPointAtDistance(d);
+        if (k++>=180/step) {
+          map.panTo(p);
+          k=0;
+        }
+        marker.setPoint(p);
+        document.getElementById("distance").innerHTML =  "Miles: "+(d/1609.344).toFixed(2)+speed;
+        if (stepnum+1 < dirn.getRoute(0).getNumSteps()) {
+          if (dirn.getRoute(0).getStep(stepnum).getPolylineIndex() < poly.GetIndexAtDistance(d)) {
+            stepnum++;
+            var steptext = dirn.getRoute(0).getStep(stepnum).getDescriptionHtml();
+            document.getElementById("step").innerHTML = "<b>Next:<\/b> "+steptext;
+            var stepdist = dirn.getRoute(0).getStep(stepnum-1).getDistance().meters;
+            var steptime = dirn.getRoute(0).getStep(stepnum-1).getDuration().seconds;
+            var stepspeed = ((stepdist/steptime) * 2.24).toFixed(0);
+            step = stepspeed/2.5;
+            //~ speed = "<br>Current speed: " + stepspeed +" mph";
+          }
+        } else {
+          if (dirn.getRoute(0).getStep(stepnum).getPolylineIndex() < poly.GetIndexAtDistance(d)) {
+            document.getElementById("step").innerHTML = "<b>Next: Arrive at your destination<\/b>";
+          }
+        }
+        updatePoly(d);
+        setTimeout("animate("+(d+step)+")", tick);
+      }
+
+      GEvent.addListener(dirn,"load", function() {
+        document.getElementById("controls").style.display="none";
+        poly=dirn.getPolyline();
+        eol=poly.Distance();
+        map.setCenter(poly.getVertex(0),17);
+				alert(poly.getVertex(0))
+				alert(poly.getVertex(poly.getVertexCount()-1))
+        map.addOverlay(new GMarker(poly.getVertex(0),G_START_ICON));
+        map.addOverlay(new GMarker(poly.getVertex(poly.getVertexCount()-1),G_END_ICON));
+        marker = new GMarker(poly.getVertex(0),{icon:car});
+        map.addOverlay(marker);
+        var steptext = dirn.getRoute(0).getStep(stepnum).getDescriptionHtml();
+        document.getElementById("step").innerHTML = steptext;
+        poly2 = new GPolyline([poly.getVertex(0)]);
+        map.addOverlay(poly2);
+        setTimeout("animate(0)",2000);  // Allow time for the initial map display
+      });
+
+      GEvent.addListener(dirn,"error", function() {
+        alert("Location(s) not recognised. Code: "+dirn.getStatus().code);
+      });
+
+      function start() {
+        var startpoint = document.getElementById("startpoint").value;
+        var endpoint = document.getElementById("endpoint").value;
+        dirn.loadFromWaypoints([startpoint,endpoint],{getPolyline:true,getSteps:true});
+      }
+
+    }
+
+    // This Javascript is based on code provided by the
+    // Community Church Javascript Team
+    // http://www.bisphamchurch.org.uk/   
+    // http://econym.org.uk/gmap/
+
+    //]]>
+    </script>
+
+</body>
